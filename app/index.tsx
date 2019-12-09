@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
-import Animated, { Easing } from "react-native-reanimated";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import Animated from "react-native-reanimated";
+import Svg, { Image, Circle, ClipPath } from "react-native-svg";
 import {
   TapGestureHandler,
   State,
-  TextInput
+  TextInput,
+  ScrollView
 } from "react-native-gesture-handler";
+
+import { runTiming } from "./functions/runTiming";
 
 interface Props {}
 
@@ -13,65 +17,29 @@ const {
   Value,
   interpolate,
   Extrapolate,
-  timing,
   concat,
   event,
   block,
   cond,
   eq,
   set,
-  Clock,
-  clockRunning,
-  startClock,
-  stopClock,
-  debug
+  Clock
 } = Animated;
 
-function runTiming(clock, value, dest) {
-  const state = {
-    finished: new Value(0),
-    position: new Value(0),
-    time: new Value(0),
-    frameTime: new Value(0)
-  };
-
-  const config = {
-    duration: 1000,
-    toValue: new Value(0),
-    easing: Easing.inOut(Easing.ease)
-  };
-
-  return block([
-    cond(
-      clockRunning(clock),
-      [set(config.toValue, dest)],
-      [
-        set(state.finished, 0),
-        set(state.time, 0),
-        set(state.position, value),
-        set(state.frameTime, 0),
-        set(config.toValue, dest),
-        startClock(clock)
-      ]
-    ),
-    timing(clock, state, config),
-    cond(state.finished, debug("stop clock", stopClock(clock))),
-    state.position
-  ]);
-}
 const Component: React.FC<Props> = () => {
   const [buttonOpacity] = useState(new Value(1));
   const { width, height } = Dimensions.get("window");
 
   const onStateChange = event([
     {
-      nativeEvent: ({ state }) =>
-        block([
+      nativeEvent: ({ state }) => {
+        return block([
           cond(
             eq(state, State.END),
             set(buttonOpacity, runTiming(new Clock(), 1, 0))
           )
-        ])
+        ]);
+      }
     }
   ]);
 
@@ -95,7 +63,7 @@ const Component: React.FC<Props> = () => {
 
   const backgroundY = interpolate(buttonOpacity, {
     inputRange: [0, 1],
-    outputRange: [-height / 3, 0],
+    outputRange: [-height / 3 - 50, 0],
     extrapolate: Extrapolate.CLAMP
   });
 
@@ -124,14 +92,24 @@ const Component: React.FC<Props> = () => {
   });
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={{ flex: 1, justifyContent: "flex-end" }}>
       <Animated.View
         style={[styles.wrapper, { transform: [{ translateY: backgroundY }] }]}
       >
-        <Image
-          source={require("../assets/photo.jpeg")}
-          style={{ flex: 1, width: null, height: null }}
-        ></Image>
+        {/* <DismissKeyboard> */}
+        <Svg height={height + 50} width={width}>
+          <ClipPath id="clip">
+            <Circle r={height + 50} cx={width / 2}></Circle>
+          </ClipPath>
+          <Image
+            href={require("../assets/photo.jpeg")}
+            width={width}
+            height={height + 50}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath="url(#clip)"
+          ></Image>
+        </Svg>
+        {/* </DismissKeyboard> */}
       </Animated.View>
       <View
         style={{
@@ -178,6 +156,7 @@ const Component: React.FC<Props> = () => {
         >
           <TapGestureHandler onHandlerStateChange={onStateClose}>
             <Animated.View style={styles.closeButton}>
+              {/* <DismissKeyboard> */}
               <Animated.Text
                 style={{
                   fontSize: 15,
@@ -187,6 +166,7 @@ const Component: React.FC<Props> = () => {
               >
                 X
               </Animated.Text>
+              {/* </DismissKeyboard> */}
             </Animated.View>
           </TapGestureHandler>
           <TextInput
@@ -200,11 +180,13 @@ const Component: React.FC<Props> = () => {
             placeholderTextColor="black"
           ></TextInput>
           <Animated.View style={[styles.button, { height: "25%" }]}>
+            {/* <DismissKeyboard> */}
             <Text style={styles.buttonText}>Sign In</Text>
+            {/* </DismissKeyboard> */}
           </Animated.View>
         </Animated.View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
