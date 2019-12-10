@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, StatusBar } from "react-native";
 import Animated from "react-native-reanimated";
 import Svg, { Image, Circle, ClipPath } from "react-native-svg";
 import {
@@ -93,10 +93,10 @@ const Component: React.FC<Props> = () => {
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1, justifyContent: "flex-end" }}>
+      <StatusBar barStyle="light-content" />
       <Animated.View
         style={[styles.wrapper, { transform: [{ translateY: backgroundY }] }]}
       >
-        {/* <DismissKeyboard> */}
         <Svg height={height + 50} width={width}>
           <ClipPath id="clip">
             <Circle r={height + 50} cx={width / 2}></Circle>
@@ -109,7 +109,6 @@ const Component: React.FC<Props> = () => {
             clipPath="url(#clip)"
           ></Image>
         </Svg>
-        {/* </DismissKeyboard> */}
       </Animated.View>
       <View
         style={{
@@ -156,7 +155,6 @@ const Component: React.FC<Props> = () => {
         >
           <TapGestureHandler onHandlerStateChange={onStateClose}>
             <Animated.View style={styles.closeButton}>
-              {/* <DismissKeyboard> */}
               <Animated.Text
                 style={{
                   fontSize: 15,
@@ -166,7 +164,6 @@ const Component: React.FC<Props> = () => {
               >
                 X
               </Animated.Text>
-              {/* </DismissKeyboard> */}
             </Animated.View>
           </TapGestureHandler>
           <TextInput
@@ -180,9 +177,7 @@ const Component: React.FC<Props> = () => {
             placeholderTextColor="black"
           ></TextInput>
           <Animated.View style={[styles.button, { height: "25%" }]}>
-            {/* <DismissKeyboard> */}
             <Text style={styles.buttonText}>Sign In</Text>
-            {/* </DismissKeyboard> */}
           </Animated.View>
         </Animated.View>
       </View>
